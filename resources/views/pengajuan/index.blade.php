@@ -1,74 +1,83 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            Halaman Pengajuan
-        </h2>
-    </x-slot>
+@extends('layouts.app')
 
-    <div class="py-6">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg p-6">
+@section('content')
 
-                <a href="{{ route('pengajuan.create') }}"
-                   class="mb-4 inline-block bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
-                    + Tambah Pengajuan
-                </a>
+<style>
+    .sidebar {
+        width: 260px;
+        background: #fff;
+        border-right: 1px solid #ddd;
+        height: calc(100vh - 64px);
+        padding-top: 10px;
+        position: fixed;
+        top: 64px;
+        left: 0;
+        overflow-y: auto;
+    }
 
-                <table class="w-full border mt-4">
-                    <thead>
-                        <tr class="bg-gray-200">
-                            <th class="border p-2">Judul</th>
-                            <th class="border p-2">Jumlah</th>
-                            <th class="border p-2">Status</th>
-                            <th class="border p-2">Aksi</th>
-                        </tr>
-                    </thead>
+    .menu-item {
+        cursor: pointer;
+        padding: 12px 18px;
+        border-left: 4px solid transparent;
+        transition: .15s;
+    }
 
-                    <tbody>
-                        @foreach ($pengajuans as $p)
-                            <tr>
-                                <td class="border p-2">{{ $p->judul_pengajuan }}</td>
-                                <td class="border p-2">{{ $p->jumlah }}</td>
-                                <td class="border p-2">{{ $p->status }}</td>
+    .menu-item:hover {
+        background: #f1f5f9;
+    }
 
-                                <td class="border p-2 space-x-2">
+    .menu-item.active {
+        background: #e0e7ff;
+        border-left: 4px solid #3b82f6;
+        font-weight: 600;
+    }
 
-                                    {{-- EDIT --}}
-                                    <a href="{{ route('pengajuan.edit', $p->id) }}"
-                                       class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded">
-                                        Edit
-                                    </a>
+    .form-container {
+        margin-left: 260px;
+        padding: 30px;
+        min-height: calc(100vh - 64px);
+        background: #f8fafc;
+    }
+</style>
 
-                                    {{-- DELETE --}}
-                                    <form action="{{ route('pengajuan.destroy', $p->id) }}" method="POST" class="inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit"
-                                            class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded"
-                                            onclick="return confirm('Hapus pengajuan ini?')">
-                                            Hapus
-                                        </button>
-                                    </form>
+<div class="sidebar">
+    <h5 class="px-3 mb-2 ">Pengajuan</h5>
 
-                                    {{-- KIRIM KE GA --}}
-                                    @if ($p->status == 'draft')
-                                        <form action="{{ route('pengajuan.kirim', $p->id) }}" method="POST" class="inline">
-                                            @csrf
-                                            <button type="submit"
-                                                class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded">
-                                                Kirim ke GA
-                                            </button>
-                                        </form>
-                                    @endif
+    <ul class="list-group list-group-flush">
+        <li class="list-group-item menu-item" data-form="asset">Asset Tetap Pisah</li>
+        <li class="list-group-item menu-item" data-form="dapur">Belanja Dapur</li>
+        <li class="list-group-item menu-item" data-form="poac">PO AC</li>
+        <li class="list-group-item menu-item" data-form="pantry">Stock Pantry</li>
+        <li class="list-group-item menu-item" data-form="atk">Pembelanjaan ATK</li>
+        <li class="list-group-item menu-item" data-form="jnt">Laporan JNT</li>
+        <li class="list-group-item menu-item" data-form="keperawatan">Keperawatan</li>
+        <li class="list-group-item menu-item" data-form="keamanan">Keamanan</li>
+        <li class="list-group-item menu-item" data-form="kebersihan">Kebersihan</li>
+        <li class="list-group-item menu-item" data-form="toren">Kebersihan Toren Air</li>
+        <li class="list-group-item menu-item" data-form="kolam">Kebersihan Kolam Ikan</li>
+    </ul>
+</div>
 
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
+<div id="formContainer" class="form-container">
+    <h4 class="text-muted text-center">Silakan pilih jenis pengajuan di sebelah kiri.</h4>
+</div>
 
-                </table>
+<script>
+    document.querySelectorAll(".menu-item").forEach(item => {
+        item.addEventListener("click", function () {
 
-            </div>
-        </div>
-    </div>
-</x-app-layout>
+            document.querySelectorAll(".menu-item").forEach(i => i.classList.remove("active"));
+            this.classList.add("active");
+
+            const form = this.dataset.form;
+
+            fetch(`/pengajuan/form/${form}`)
+                .then(res => res.text())
+                .then(html => {
+                    document.getElementById("formContainer").innerHTML = html;
+                });
+        });
+    });
+</script>
+
+@endsection

@@ -10,12 +10,15 @@ class Pengajuan extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id',
-        'judul_pengajuan',
-        'nominal',
-        'catatan',
-        'status',
-    ];
+    'user_id',
+    'nama_pengaju',
+    'judul_pengajuan',
+    'nominal',
+    'catatan',
+    'status',
+];
+
+
 
     public function user()
     {
